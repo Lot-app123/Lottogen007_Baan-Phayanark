@@ -37,13 +37,92 @@ TOKEN_EXPIRE_HOURS = 8
 
 USERS = {"admin": "1234"}  # TODO: ใช้ DB + bcrypt จริง ๆ ใน production
 
+# Mapping สำหรับรูปธง (อัปเดตตามชื่อที่มีการรวมรอบ + VIP และ เช้า/บ่าย)
+FLAG_MAPPING = {
+    # 🇱🇦 ลาว (Laos)
+    "ลาว EXTRA": "static/flags/laos.png",
+    "ลาว TV": "static/flags/laos.png",
+    "ลาวพิเศษรอบเที่ยง": "static/flags/laos.png",
+    "ลาว HD": "static/flags/laos.png",
+    "ลาวสตาร์": "static/flags/laos.png",
+    "หวยลาวสามัคคี": "static/flags/laos.png", # ปรับตามชื่อใหม่
+    "ลาวพัฒนา": "static/flags/laos.png",
+    "ลาวอาเซียน": "static/flags/laos.png",
+    "ลาว VIP": "static/flags/laos.png",
+    "ลาวสามัคคี VIP": "static/flags/laos.png",
+    "ลาว STAR VIP": "static/flags/laos.png",
+    "ลาวกาชาด": "static/flags/laos.png",
+
+    # 🇻🇳 เวียดนาม (Vietnam)
+    "ฮานอยอาเซียน": "static/flags/vietnam.png",
+    "ฮานอย HD": "static/flags/vietnam.png",
+    "ฮานอยสตาร์": "static/flags/vietnam.png",
+    "ฮานอย TV": "static/flags/vietnam.png",
+    "ฮานอยกาชาด": "static/flags/vietnam.png",
+    "ฮานอยพิเศษ": "static/flags/vietnam.png",
+    "ฮานอยสามัคคี": "static/flags/vietnam.png",
+    "ฮานอย": "static/flags/vietnam.png", # ปรับตามชื่อใหม่
+    "ฮานอย VIP": "static/flags/vietnam.png",
+    "ฮานอยพัฒนา": "static/flags/vietnam.png",
+    "ฮานอย EXTRA": "static/flags/vietnam.png",
+
+    # 🇯🇵 ญี่ปุ่น (Japan)
+    "นิเคอิ(เช้า) + VIP": "static/flags/japan.png",
+    "นิเคอิ(บ่าย) + VIP": "static/flags/japan.png",
+
+    # 🇨🇳 จีน (China)
+    "จีน(เช้า) + VIP": "static/flags/china.png",
+    "จีน(บ่าย) + VIP": "static/flags/china.png",
+
+    # 🇭🇰 ฮ่องกง (Hong Kong)
+    "ฮั่งเส็ง(เช้า) + VIP": "static/flags/hongkong.png",
+    "ฮั่งเส็ง(บ่าย) + VIP": "static/flags/hongkong.png",
+
+    # 🇹🇼 ไต้หวัน (Taiwan)
+    "ไต้หวัน + VIP": "static/flags/taiwan.png",
+
+    # 🇰🇷 เกาหลีใต้ (South Korea)
+    "เกาหลี + VIP": "static/flags/korea.png",
+
+    # 🇺🇸 สหรัฐอเมริกา (USA)
+    "ดาวโจนส์ + VIP": "static/flags/usa.png",
+    "ดาวโจนส์ STAR": "static/flags/usa.png",
+
+    # 🇬🇧 อังกฤษ (United Kingdom)
+    "อังกฤษ + VIP": "static/flags/uk.png",
+
+    # 🇩🇪 เยอรมนี (Germany)
+    "เยอรมัน + VIP": "static/flags/germany.png",
+
+    # 🇷🇺 รัสเซีย (Russia)
+    "รัสเซีย + VIP": "static/flags/russia.png",
+
+    # 🇸🇬 สิงคโปร์ (Singapore)
+    "สิงคโปร์ + VIP": "static/flags/singapore.png",
+
+    # 🇹🇭 ไทย (Thailand)
+    "ไทยเย็น": "static/flags/thailand.png",
+
+    # 🇮🇳 อินเดีย (India)
+    "อินเดีย": "static/flags/india.png",
+
+    # 🇲🇾 มาเลเซีย (Malaysia)
+    "มาเลย์": "static/flags/malaysia.png",
+
+    # 🇪🇬 อียิปต์ (Egypt)
+    "อียิปต์": "static/flags/egypt.png",
+
+    # 🇪🇺 ยุโรป (Europe)
+    "ยูโร": "static/flags/eu.png"
+}
+
 
 def create_token(username: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRE_HOURS)
     return jwt.encode({"sub": username, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def get_current_user(token: str | None = Cookie(default=None, alias="access_token")) -> str:
+def get_current_user(token: str = Cookie(default=None, alias="access_token")) -> str:
     if not token:
         raise HTTPException(status_code=status.HTTP_307_TEMPORARY_REDIRECT, headers={"Location": "/login"})
     try:
@@ -61,25 +140,24 @@ CurrentUser = Annotated[str, Depends(get_current_user)]
 @lru_cache(maxsize=1)
 def _load_bg() -> Image.Image:
     """โหลดภาพพื้นหลังครั้งเดียว แล้ว cache ไว้ใน RAM"""
-    return Image.open("static/Baan.jpg").convert("RGBA")
+    return Image.open("static/Baan-1.jpg").convert("RGBA")
 
 
-@lru_cache(maxsize=8)
-def _load_font(size: int) -> ImageFont.FreeTypeFont:
-    """Cache แต่ละขนาด font แยกกัน"""
-    return ImageFont.truetype("static/SURATANADEMO-ExtraBold.ttf", size)
+@lru_cache(maxsize=16) # เพิ่มขนาด cache เผื่อโหลดหลายฟอนต์
+def _load_font(size: int, font_path: str = "static/Anton-Regular.ttf") -> ImageFont.FreeTypeFont:
+    """Cache แต่ละขนาดและไฟล์ฟอนต์แยกกัน (ค่าเริ่มต้นคือ Anton สำหรับตัวเลข)"""
+    return ImageFont.truetype(font_path, size)
 
-
-# ─── Image generation (ไม่แตะ disk เลย) ─────────────────────────────────────
 
 def _get_auto_font(draw: ImageDraw.ImageDraw, text: str, max_width: int,
-                   start: int = 50, min_size: int = 20) -> ImageFont.FreeTypeFont:
+                   start: int = 50, min_size: int = 20, 
+                   font_path: str = "static/Anton-Regular.ttf") -> ImageFont.FreeTypeFont:
     for size in range(start, min_size - 1, -1):
-        font = _load_font(size)
+        font = _load_font(size, font_path)
         w = draw.textbbox((0, 0), text, font=font)[2]
         if w <= max_width:
             return font
-    return _load_font(min_size)
+    return _load_font(min_size, font_path)
 
 
 def _bold_text(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str,
@@ -92,62 +170,97 @@ def _bold_text(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str,
 
 def create_image_bytes(lottery_type: str) -> bytes:
     """
-    สร้างรูปภาพในหน่วยความจำและคืนค่าเป็น bytes (PNG)
+    สร้างรูปภาพในหน่วยความจำและคืนค่าเป็น bytes (PNG/JPEG)
     ไม่มีการเขียนไฟล์ลง disk เลย
     """
     # deepcopy เพื่อไม่ให้แก้ไข cached image โดยตรง
     image = deepcopy(_load_bg()).convert("RGB")
     draw  = ImageDraw.Draw(image)
 
-    # วันที่ปัจจุบัน
-    date_text = datetime.now(ZoneInfo("Asia/Bangkok")).strftime("%d.%m.%y")
-    draw.text((190, 50), date_text, font=_load_font(30), fill="#ffca08")
+    # ─── วันที่และหัวข้อ ──────────────────────────────────────────────────
+    # ปรับ format วันที่เป็น วัน/เดือน (DD/MM) ตามแบบในภาพ image_7a769f.png
+    text_font_path = "static/Sriracha-Regular.ttf"
+    date_text = datetime.now(ZoneInfo("Asia/Bangkok")).strftime("%d/%m")
+    draw.text((850, 3 ), date_text, font=_load_font(40 ,text_font_path), fill="#000000") # อาจต้องปรับพิกัด x,y ตามพื้นหลังจริง
 
     # ชื่อประเภทหวย (auto-fit)
-    font_auto = _get_auto_font(draw, lottery_type, image.width - 100)
+    font_auto = _get_auto_font(draw, lottery_type, image.width - 400, start=48, font_path=text_font_path)
     bbox = draw.textbbox((0, 0), lottery_type, font=font_auto)
     x_pos = (image.width - (bbox[2] - bbox[0])) // 2
-    _bold_text(draw, (x_pos, 110), lottery_type, font_auto)
+    _bold_text(draw, (x_pos + 50, 55), lottery_type, font_auto, fill="#000000")
 
-    # ─── สุ่มเลข ───────────────────────────────────────────────────────────
+    flag_path = FLAG_MAPPING.get(lottery_type)
+    if flag_path:
+        try:
+            # โหลดรูปธง
+            flag_img = Image.open(flag_path).convert("RGBA")
+            
+            # 1. กำหนดขนาดธง (ปรับความกว้าง ตัวแปรความสูงจะปรับตามสัดส่วนอัตโนมัติ)
+            target_flag_width = 80   # ⬅️ ปรับขนาดความกว้างของธงที่นี่
+            w_ratio = target_flag_width / flag_img.width
+            target_flag_height = int(flag_img.height * w_ratio)
+            flag_img = flag_img.resize((target_flag_width, target_flag_height), Image.Resampling.LANCZOS)
+            
+            # 2. กำหนดตำแหน่งที่วางธงอิสระ
+            flag_x = 740  # ⬅️ ปรับแกน X (เลื่อนซ้าย-ขวา)
+            flag_y = 50  # ⬅️ ปรับแกน Y (เลื่อนขึ้น-ลง)
+            
+            # วางรูปธงทับลงไป
+            image.paste(flag_img, (flag_x, flag_y), flag_img)
+            
+        except FileNotFoundError:
+            pass # ถ้าหาไฟล์รูปธงไม่เจอ ให้ข้ามการวาดธงไปเลย
+
+    # ─── สุ่มเลขตามเงื่อนไขใหม่ ──────────────────────────────────────────────
+    
+    # 1. สร้างเลขหลักมา 2 เลข ก่อน
     num1, num2 = random.sample(range(10), 2)
-    disallowed = {f"{num1}{num2}", f"{num2}{num1}"}
 
-    def pick(prefix: int, exclude: list[str]) -> list[str]:
-        pool = [f"{prefix}{i}" for i in range(10) if f"{prefix}{i}" not in disallowed]
-        chosen: list[str] = []
-        for _ in range(3):
-            available = [x for x in pool if x not in exclude + chosen]
-            chosen.append(random.choice(available))
-        return chosen
+    # 2. นำเลขหลัก 1 ตัว วางซ้ำกัน 3 ครั้ง (รูดเน้น)
+    triple_num = f"{num1}{num1}{num1}"
 
-    tens  = pick(num1, [])
-    units = pick(num2, [])
+    # 3. วางเลขหลักทั้งสองด้วยกัน (เม็ดเดียว)
+    main_pair = f"{num1}{num2}"
 
-    other  = [i for i in range(10) if i not in (num1, num2)]
-    extras = random.sample(other, 4)
-    six    = [num1, num2] + extras
-    random.shuffle(six)
-    random_6 = "".join(map(str, six))
+    # 4. นำเลขหลักตัวเดิมมาสร้างเป็นเลข คู่ 3 คู่ โดยไม่ซ้ำกับเลขหลัก 2 ตัว
+    # หาตัวเลขที่ไม่ใช่ num1 และ num2 มา 3 ตัว
+    available_digits = [d for d in range(10) if d not in (num1, num2)]
+    selected_for_pairs = random.sample(available_digits, 3)
+    
+    # สร้างเลขคู่ 3 ชุด แล้วนำมาเชื่อมกันด้วย " - "
+    pairs_list = [f"{num1}{d}" for d in sorted(selected_for_pairs)]
+    pairs_text = " - ".join(pairs_list)
 
-    # ─── วาดผลลัพธ์ ────────────────────────────────────────────────────────
-    f_large  = _load_font(75)
-    f_medium = _load_font(60)
-    f_small  = _load_font(50)
+    # 5. นำเลขหลัก 2 ตัวมาวางแต่เพิ่มตัวเลขด้านหน้า 1 ตัวให้กลายเป็นเลข 3 หลัก
+    front_digit = random.choice(range(10))
+    three_digit = f"{front_digit}{num1}{num2}"
 
-    _bold_text(draw, (160, 190), f"{num1} - {num2}", f_large)
-    for i, val in enumerate(tens):
-        _bold_text(draw, (120 + i * 90, 320), val, f_medium)
-    for i, val in enumerate(units):
-        _bold_text(draw, (120 + i * 90, 430), val, f_medium)
-    _bold_text(draw, (55, 520), f"วิน.{random_6}", f_small)
+    # ─── วาดผลลัพธ์ลงบนภาพ ────────────────────────────────────────────────
+    # ปรับขนาดฟอนต์ให้เข้ากับแต่ละกล่อง
+    f_large  = _load_font(160)
+    f_medium = _load_font(150)
+    f_small  = _load_font(100)
+
+    # หมายเหตุ: พิกัด (x, y) เป็นค่าประมาณการอ้างอิงจากโครงสร้างภาพ image_7a769f.png
+    # หากตำแหน่งเบี้ยว คุณสามารถปรับตัวเลข x (แนวนอน) และ y (แนวตั้ง) ด้านล่างนี้ได้เลย
+    
+    # รูดเน้น 3 ตัว (สีแดง)
+    _bold_text(draw, (610, 135), triple_num, f_large, fill="#ff0000") 
+    
+    # เม็ดเดียว 2 ตัว (สีแดง)
+    _bold_text(draw, (670, 350), main_pair, f_medium, fill="#ff0000")   
+    
+    # เลขคู่ 3 คู่ (สีขาว เพื่อให้อ่านง่ายบนพื้นเขียว)
+    _bold_text(draw, (400, 580), pairs_text, f_small, fill="#ffffff")  
+    
+    # ฟัน 3 ตัวท้าย (สีแดง)
+    _bold_text(draw, (440, 720), three_digit, f_medium, fill="#ff0000") 
 
     # ─── คืนค่าเป็น bytes (ไม่เซฟไฟล์) ────────────────────────────────────
     buf = io.BytesIO()
     image.save(buf, format="JPEG", quality=85, optimize=True)
     buf.seek(0)
     return buf.read()
-
 
 # ─── Routes ──────────────────────────────────────────────────────────────────
 
