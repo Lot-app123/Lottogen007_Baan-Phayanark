@@ -412,8 +412,8 @@ header {
 
   <div class="set-tabs" id="set-tabs">
     <div class="set-tab active" data-set="0" onclick="switchSet(0)">SET<br class="desktop-br"> 1</div>
-    <!-- <div class="set-tab" data-set="1" onclick="switchSet(1)">SET<br class="desktop-br"> 2</div>
-    <div class="set-tab" data-set="2" onclick="switchSet(2)">ส-อ</div> -->
+    <div class="set-tab" data-set="1" onclick="switchSet(1)">SET<br class="desktop-br"> 2</div>
+    <div class="set-tab" data-set="2" onclick="switchSet(2)">ส-อ</div>
     
     <button type="button" class="preview-toggle-btn" id="preview-toggle-btn" onclick="togglePreview()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -480,6 +480,58 @@ const SETS = [
       { name: 'รัสเซีย + VIP',         time: '22:30,23:30' },
       { name: 'ดาวโจนส์ + VIP',        time: '04:00' },
       { name: 'ดาวโจนส์ STAR',       time: '04:30' },
+    ]
+  },
+  {
+    label: 'SET 2',
+    items: [
+      { name: 'ธกส',       time: '' },
+      { name: 'ออมสิน',    time: '' },
+      { name: 'ไทย',       time: '' },
+      { name: 'รัฐบาลไทย', time: '' },
+    ]
+  },
+  {
+    label: 'เสาร์-อาทิตย์',
+    items: [
+      { name: 'หวยดาวโจนส์ VIP',        time: '04:00' },
+      { name: 'หวยดาวโจนส์ STAR',       time: '04:30' },
+      { name: 'หวยลาว Extra',            time: '08:25' },
+      { name: 'นิเคอิ(เช้า) VIP',        time: '09:00' },
+      { name: 'ฮานอยอาเซียน',            time: '09:10' },
+      { name: 'จีน(เช้า) VIP',           time: '10:00' },
+      { name: 'หวยลาว TV',               time: '10:25' },
+      { name: 'ฮั่งเส็ง(เช้า) VIP',      time: '10:30' },
+      { name: 'ฮานอย HD',                time: '11:10' },
+      { name: 'ไต้หวัน VIP',             time: '11:30' },
+      { name: 'ฮานอยสตาร์',              time: '12:30' },
+      { name: 'เกาหลี VIP',              time: '12:30' },
+      { name: 'นิเคอิ(บ่าย) VIP',        time: '13:30' },
+      { name: 'หวยลาว HD',               time: '14:00' },
+      { name: 'หวยฮานอย TV',             time: '14:30' },
+      { name: 'จีน(บ่าย) VIP',           time: '14:45' },
+      { name: 'ฮั่งเส็ง(บ่าย) VIP',      time: '15:00' },
+      { name: 'หวยลาวสตาร์',             time: '15:00' },
+      { name: 'หวยฮานอยกาชาด',           time: '16:00' },
+      { name: 'สิงคโปร์ VIP',            time: '16:30' },
+      { name: 'ฮานอยพิเศษ',              time: '16:30' },
+      { name: 'ฮานอยสามัคคี',            time: '17:00' },
+      { name: 'หวยมาเลย์',               time: '18:00' },
+      { name: 'หวยฮานอย',                time: '18:00' },
+      { name: 'ฮานอยพัฒนา',              time: '19:30' },
+      { name: 'หวยฮานอย VIP',            time: '19:00' },
+      { name: 'หวยลาวสามัคคี',           time: '20:00' },
+      { name: 'หวยลาวอาเซียน',              time: '21:00' },
+      { name: 'หวยลาว VIP',              time: '21:00' },
+      { name: 'หวยลาวสามัคคี VIP',       time: '21:30' },
+      { name: 'หวยลาว STAR VIP',         time: '21:30' },
+      { name: 'อังกฤษ VIP',              time: '22:00' },
+      { name: 'หวยฮานอย Extra',          time: '22:30' },
+      { name: 'ฮานอยดึก',               time: '23:00' },
+      { name: 'หวยลาวกาชาด',             time: '23:00' },
+      { name: 'เยอรมัน VIP',             time: '22:30' },
+      { name: 'ยูโร',                    time: '23:30' },
+      { name: 'รัสเซีย VIP',             time: '23:30' },
     ]
   }
 ];
