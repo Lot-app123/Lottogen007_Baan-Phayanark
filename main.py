@@ -102,6 +102,10 @@ FLAG_MAPPING = {
 
     # 🇹🇭 ไทย (Thailand)
     "ไทยเย็น": "static/flags/thailand.png",
+    "ไทย": "static/flags/thailand.png",
+    "ออมสิน": "static/flags/thailand.png",
+    "ธกส": "static/flags/thailand.png",
+    "รัฐบาล": "static/flags/thailand.png",
 
     # 🇮🇳 อินเดีย (India)
     "อินเดีย": "static/flags/india.png",
