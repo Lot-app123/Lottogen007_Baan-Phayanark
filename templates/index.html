@@ -412,8 +412,8 @@ header {
 
   <div class="set-tabs" id="set-tabs">
     <div class="set-tab active" data-set="0" onclick="switchSet(0)">SET<br class="desktop-br"> 1</div>
-    <div class="set-tab" data-set="1" onclick="switchSet(1)">SET<br class="desktop-br"> 2</div>
-    <div class="set-tab" data-set="2" onclick="switchSet(2)">ส-อ</div>
+    <!-- <div class="set-tab" data-set="1" onclick="switchSet(1)">SET<br class="desktop-br"> 2</div>
+    <div class="set-tab" data-set="2" onclick="switchSet(2)">ส-อ</div> -->
     
     <button type="button" class="preview-toggle-btn" id="preview-toggle-btn" onclick="togglePreview()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -438,20 +438,25 @@ const SETS = [
   {
     label: 'SET 1',
     items: [
+      { name: 'ดาวโจนส์ + VIP',        time: '04:00' },
+      { name: 'ดาวโจนส์ STAR',       time: '04:30' },
       { name: 'ลาว EXTRA',          time: '08:25' },
       { name: 'นิเคอิ(เช้า) + VIP',      time: '09:00,09:25' },
       { name: 'ฮานอยอาเซียน',        time: '09:10' },
       { name: 'จีน(เช้า) + VIP',         time: '10:00,10:20' },
+      { name: 'ไทยเช้า',         time: '10:00' },
       { name: 'ลาว TV',              time: '10:25' },
       { name: 'ฮั่งเส็ง(เช้า) + VIP',    time: '10:30,10:55' },
       { name: 'ฮานอย HD',            time: '11:10' },
       { name: 'ไต้หวัน + VIP',         time: '11:30,12:00' },
       { name: 'ลาวพิเศษรอบเที่ยง',   time: '11:30' },
       { name: 'ฮานอยสตาร์',          time: '12:30' },
+      { name: 'ไทยเที่ยง',          time: '12:30' },
       { name: 'เกาหลี + VIP',          time: '12:30,13:00' },
       { name: 'นิเคอิ(บ่าย) + VIP',      time: '13:30' },
       { name: 'ลาว HD',              time: '14:00' },
       { name: 'ฮานอย TV',            time: '14:30' },
+      { name: 'ไทยบ่าย',            time: '14:30' },
       { name: 'จีน(บ่าย) + VIP',         time: '14:00,14:45' },
       { name: 'ฮั่งเส็ง(บ่าย) + VIP',    time: '15:00' },
       { name: 'ลาวสตาร์',            time: '15:00' },
@@ -478,8 +483,6 @@ const SETS = [
       { name: 'ลาวกาชาด',            time: '23:00' },
       { name: 'ยูโร',                time: '23:30' },
       { name: 'รัสเซีย + VIP',         time: '22:30,23:30' },
-      { name: 'ดาวโจนส์ + VIP',        time: '04:00' },
-      { name: 'ดาวโจนส์ STAR',       time: '04:30' },
     ]
   },
   {
@@ -536,6 +539,7 @@ const SETS = [
   }
 ];
 
+
 let currentSet = 0;
 const selected = new Set();
 let previewOpen = false;
@@ -590,7 +594,7 @@ function renderList() {
     row.className = 'lottery-row' + (isChecked ? ' checked' : '');
     row.innerHTML = `
       <div class="cb-wrap">
-        <input type="checkbox" name="lottery_type" value="${item.name}"${isChecked ? ' checked' : ''}>
+        <input type="checkbox" name="lottery_type" value="${item.time}|${item.name}"${isChecked ? ' checked' : ''}>
         <div class="cb-box">
           <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
             <path d="M1 4l3 3 5-6" stroke="#0a0b0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
