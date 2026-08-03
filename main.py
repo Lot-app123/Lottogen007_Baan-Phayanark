@@ -29,67 +29,124 @@ TOKEN_EXPIRE_HOURS = 8
 
 USERS = {"admin": "1234"}  # TODO: ใช้ DB + bcrypt จริง ๆ ใน production
 
-# Mapping สำหรับรูปธง (อัปเดตตามชื่อที่มีการรวมรอบ + VIP และ เช้า/บ่าย)
 FLAG_MAPPING = {
     # 🇱🇦 ลาว (Laos)
     "ลาว EXTRA": "static/flags/laos.png",
+    "หวยลาว EXTRA": "static/flags/laos.png",
     "ลาว TV": "static/flags/laos.png",
+    "หวยลาว TV": "static/flags/laos.png",
     "ลาวพิเศษรอบเที่ยง": "static/flags/laos.png",
     "ลาว HD": "static/flags/laos.png",
+    "หวยลาว HD": "static/flags/laos.png",
     "ลาวสตาร์": "static/flags/laos.png",
-    "หวยลาวสามัคคี": "static/flags/laos.png", # ปรับตามชื่อใหม่
+    "หวยลาวสตาร์": "static/flags/laos.png",
+    "หวยลาวสามัคคี": "static/flags/laos.png",# ปรับตามชื่อใหม่
+    "ลาวสามัคคี": "static/flags/laos.png",
     "ลาวพัฒนา": "static/flags/laos.png",
     "ลาวอาเซียน": "static/flags/laos.png",
     "ลาว VIP": "static/flags/laos.png",
+    "หวยลาว VIP": "static/flags/laos.png",
     "ลาวสามัคคี VIP": "static/flags/laos.png",
+    "หวยลาวสามัคคี VIP": "static/flags/laos.png",
     "ลาว STAR VIP": "static/flags/laos.png",
+    "หวยลาว STAR VIP": "static/flags/laos.png",
     "ลาวกาชาด": "static/flags/laos.png",
+    "หวยลาวกาชาด": "static/flags/laos.png",
+
 
     # 🇻🇳 เวียดนาม (Vietnam)
     "ฮานอยอาเซียน": "static/flags/vietnam.png",
     "ฮานอย HD": "static/flags/vietnam.png",
     "ฮานอยสตาร์": "static/flags/vietnam.png",
     "ฮานอย TV": "static/flags/vietnam.png",
+    "หวยฮานอย TV": "static/flags/vietnam.png",
     "ฮานอยกาชาด": "static/flags/vietnam.png",
+    "หวยฮานอยกาชาด": "static/flags/vietnam.png",
     "ฮานอยพิเศษ": "static/flags/vietnam.png",
     "ฮานอยสามัคคี": "static/flags/vietnam.png",
     "ฮานอย": "static/flags/vietnam.png", # ปรับตามชื่อใหม่
+    "ฮานอยปกติ": "static/flags/vietnam.png",
+    "ฮานอยดึก": "static/flags/vietnam.png",
+    "หวยฮานอย": "static/flags/vietnam.png",
     "ฮานอย VIP": "static/flags/vietnam.png",
+    "ฮานอย + VIP": "static/flags/vietnam.png",
+    "หวยฮานอย VIP": "static/flags/vietnam.png",
     "ฮานอยพัฒนา": "static/flags/vietnam.png",
     "ฮานอย EXTRA": "static/flags/vietnam.png",
+    "หวยฮานอย EXTRA": "static/flags/vietnam.png",
 
     # 🇯🇵 ญี่ปุ่น (Japan)
+    "นิเคอิ(เช้า)": "static/flags/japan.png",
+    "นิเคอิเช้า": "static/flags/japan.png",
+    "นิเคอิ(เช้า) VIP": "static/flags/japan.png",
+    "นิเคอิเช้า VIP": "static/flags/japan.png",
+    "นิเคอิ(บ่าย)": "static/flags/japan.png",
+    "นิเคอิบ่าย": "static/flags/japan.png",
+    "นิเคอิ(บ่าย) VIP": "static/flags/japan.png",
+    "นิเคอิบ่าย VIP": "static/flags/japan.png",
     "นิเคอิ(เช้า) + VIP": "static/flags/japan.png",
     "นิเคอิ(บ่าย) + VIP": "static/flags/japan.png",
 
     # 🇨🇳 จีน (China)
+    "จีน(เช้า)": "static/flags/china.png",
+    "จีนเช้า": "static/flags/china.png",
+    "จีน(เช้า) VIP": "static/flags/china.png",
+    "จีนเช้า VIP": "static/flags/china.png",
+    "จีน(บ่าย)": "static/flags/china.png",
+    "จีนบ่าย": "static/flags/china.png",
+    "จีน(บ่าย) VIP": "static/flags/china.png",
+    "จีนบ่าย VIP": "static/flags/china.png",
     "จีน(เช้า) + VIP": "static/flags/china.png",
     "จีน(บ่าย) + VIP": "static/flags/china.png",
 
     # 🇭🇰 ฮ่องกง (Hong Kong)
+    "ฮั่งเส็ง(เช้า)": "static/flags/hongkong.png",
+    "ฮั่งเส็งเช้า": "static/flags/hongkong.png",
+    "ฮั่งเส็ง(เช้า) VIP": "static/flags/hongkong.png",
+    "ฮั่งเส็งเช้า VIP": "static/flags/hongkong.png",
+    "ฮั่งเส็ง(บ่าย)": "static/flags/hongkong.png",
+    "ฮั่งเส็งบ่าย": "static/flags/hongkong.png",
+    "ฮั่งเส็ง(บ่าย) VIP": "static/flags/hongkong.png",
+    "ฮั่งเส็งบ่าย VIP": "static/flags/hongkong.png",
     "ฮั่งเส็ง(เช้า) + VIP": "static/flags/hongkong.png",
     "ฮั่งเส็ง(บ่าย) + VIP": "static/flags/hongkong.png",
 
     # 🇹🇼 ไต้หวัน (Taiwan)
+    "ไต้หวัน": "static/flags/taiwan.png",
+    "ไต้หวัน VIP": "static/flags/taiwan.png",
     "ไต้หวัน + VIP": "static/flags/taiwan.png",
 
     # 🇰🇷 เกาหลีใต้ (South Korea)
+    "เกาหลี": "static/flags/korea.png",
+    "เกาหลี VIP": "static/flags/korea.png",
     "เกาหลี + VIP": "static/flags/korea.png",
 
     # 🇺🇸 สหรัฐอเมริกา (USA)
+    "ดาวโจนส์": "static/flags/usa.png",
+    "ดาวโจนส์ VIP": "static/flags/usa.png",
     "ดาวโจนส์ + VIP": "static/flags/usa.png",
+    "หวยดาวโจนส์ VIP": "static/flags/usa.png",
     "ดาวโจนส์ STAR": "static/flags/usa.png",
+    "หวยดาวโจนส์ STAR": "static/flags/usa.png",
 
     # 🇬🇧 อังกฤษ (United Kingdom)
+    "อังกฤษ": "static/flags/uk.png",
+    "อังกฤษ VIP": "static/flags/uk.png",
     "อังกฤษ + VIP": "static/flags/uk.png",
 
     # 🇩🇪 เยอรมนี (Germany)
+    "เยอรมัน": "static/flags/germany.png",
+    "เยอรมัน VIP": "static/flags/germany.png",
     "เยอรมัน + VIP": "static/flags/germany.png",
 
     # 🇷🇺 รัสเซีย (Russia)
+    "รัสเซีย": "static/flags/russia.png",
+    "รัสเซีย VIP": "static/flags/russia.png",
     "รัสเซีย + VIP": "static/flags/russia.png",
 
     # 🇸🇬 สิงคโปร์ (Singapore)
+    "สิงคโปร์": "static/flags/singapore.png",
+    "สิงคโปร์ VIP": "static/flags/singapore.png",
     "สิงคโปร์ + VIP": "static/flags/singapore.png",
 
     # 🇹🇭 ไทย (Thailand)
@@ -100,13 +157,14 @@ FLAG_MAPPING = {
     "ไทย": "static/flags/thailand.png",
     "ออมสิน": "static/flags/thailand.png",
     "ธกส": "static/flags/thailand.png",
-    "รัฐบาล": "static/flags/thailand.png",
+    "รัฐบาลไทย": "static/flags/thailand.png",
 
     # 🇮🇳 อินเดีย (India)
     "อินเดีย": "static/flags/india.png",
 
     # 🇲🇾 มาเลเซีย (Malaysia)
     "มาเลย์": "static/flags/malaysia.png",
+    "หวยมาเลย์": "static/flags/malaysia.png",
 
     # 🇪🇬 อียิปต์ (Egypt)
     "อียิปต์": "static/flags/egypt.png",
