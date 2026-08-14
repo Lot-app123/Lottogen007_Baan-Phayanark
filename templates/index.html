@@ -98,6 +98,140 @@ header {
 }
 .logout-btn:hover { color: var(--red); border-color: var(--red); background: rgba(255,77,106,.06); }
 
+/* ─── Number Inputs (Customizable) ────────────────────────────── */
+.custom-numbers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 12px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.input-group input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 2px var(--gold-glow);
+}
+
+.input-group input::placeholder {
+  color: var(--muted-2);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.input-separator {
+  color: var(--muted-2);
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+.pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* ─── Toggle Inputs Button ────────────────────────────── */
+.toggle-inputs-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-inputs-btn:hover {
+  background: var(--border);
+}
+
+.toggle-inputs-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gold);
+}
+
+.toggle-inputs-title svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chevron-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transition: transform 0.3s ease, color 0.2s;
+}
+
+.toggle-inputs-btn.active .chevron-icon {
+  transform: rotate(180deg);
+  color: var(--gold);
+}
+
+/* Wrapper สำหรับทำแอนิเมชันเปิด/ปิด */
+.custom-numbers-wrapper {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.custom-numbers-wrapper.expanded {
+  max-height: 600px; /* กะเผื่อความสูงให้ครอบคลุม Input ทั้งหมด */
+  opacity: 1;
+}
+
+.custom-numbers-container {
+  margin-bottom: 15px; /* ย้าย margin มาอยู่ด้านใน */
+}
+
 /* ─── Layout (Desktop First) ─────────────────────────────────── */
 .app {
   display: grid;
@@ -386,6 +520,51 @@ header {
         <span class="panel-title">รายการหวย</span>
         <span class="selected-badge" id="selected-count">เลือก 0 / 0</span>
       </div>
+      <!-- ปุ่มเปิด/ปิด โซนกำหนดเลข -->
+      <div class="toggle-inputs-btn" id="toggle-inputs-btn">
+        <div class="toggle-inputs-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          กำหนดเลขเอง (ตัวเลือก)
+        </div>
+        <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+
+      <!-- โซนกำหนดเลขแบบละเอียด (ซ่อนอยู่โดยค่าเริ่มต้น) -->
+      <div class="custom-numbers-wrapper" id="custom-numbers-wrapper">
+        <div class="custom-numbers-container">
+          
+          <!-- แถวที่ 1: วิ่ง/รูด และ เน้นพิเศษ -->
+          <div class="input-row">
+            <div class="input-group">
+              <label>รูดเน้น <span>(1 ตัว)</span></label>
+              <input type="text" name="main1" maxlength="1" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+            <div class="input-separator"></div>
+            <div class="input-group">
+              <label>เม็ดเดียว <span>(2 ตัว)</span></label>
+              <input type="text" name="main2" maxlength="2" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+          </div>
+
+          <!-- แถวที่ 2: เลขคู่ 3 ชุด -->
+          <div class="input-group">
+            <label>เลขคู่ 3 ชุด <span>(ชุดละ 2 ตัว)</span></label>
+            <div class="pairs-grid">
+              <input type="text" name="pair1" maxlength="2" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+              <input type="text" name="pair2" maxlength="2" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+              <input type="text" name="pair3" maxlength="2" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            </div>
+          </div>
+
+          <!-- แถวที่ 4: เลขฟัน -->
+          <div class="input-group">
+            <label>เลขฟัน <span>(3 ตัว)</span></label>
+            <input type="text" name="win_num" maxlength="3" inputmode="numeric" placeholder="สุ่ม" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+          </div>
+
+        </div>
+      </div>
+      <!-- สิ้นสุดโซนกำหนดเลขแบบละเอียด -->
       <div class="search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -658,17 +837,151 @@ function toggleAll(checked) {
   });
   renderList();
 }
+// ─── ระบบเปิด/ปิด โซนกำหนดตัวเลข ───
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById('toggle-inputs-btn');
+  const wrapper = document.getElementById('custom-numbers-wrapper');
 
-document.getElementById('main-form').addEventListener('submit', () => {
-  document.getElementById('loading').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('loading').classList.remove('show');
-  }, 4000);
+  toggleBtn.addEventListener('click', () => {
+    toggleBtn.classList.toggle('active');
+    wrapper.classList.toggle('expanded');
+  });
+});
+
+// ─── ระบบตรวจสอบตัวเลขแบบ Real-time (Frontend Validation ตามกฎใหม่) ───
+document.addEventListener("DOMContentLoaded", () => {
+  const main1Input = document.querySelector('input[name="main1"]');
+  const main2Input = document.querySelector('input[name="main2"]');
+  const pairInputs = [
+    document.querySelector('input[name="pair1"]'),
+    document.querySelector('input[name="pair2"]'),
+    document.querySelector('input[name="pair3"]')
+  ];
+  const triple1Input = document.querySelector('input[name="triple1"]');
+  const triple2Input = document.querySelector('input[name="triple2"]');
+  const winInput = document.querySelector('input[name="win_num"]');
+  const form = document.getElementById('main-form');
+
+  const errorMsgBox = document.createElement('div');
+  errorMsgBox.style.color = 'var(--red)';
+  errorMsgBox.style.fontSize = '12px';
+  errorMsgBox.style.fontWeight = '500';
+  errorMsgBox.style.textAlign = 'center';
+  errorMsgBox.style.minHeight = '18px';
+  errorMsgBox.style.marginTop = '6px';
+  errorMsgBox.style.transition = 'transform 0.2s';
+  document.querySelector('.custom-numbers-container').appendChild(errorMsgBox);
+
+  let hasValidationError = false;
+
+  function validateInputs() {
+    hasValidationError = false;
+    let errors = [];
+    const m1 = main1Input.value;
+    const m2 = main2Input.value;
+
+    // Reset สีขอบ
+    if(main2Input) main2Input.style.borderColor = '';
+    pairInputs.forEach(input => { if(input) input.style.borderColor = ''; });
+    if(triple1Input) triple1Input.style.borderColor = '';
+    if(triple2Input) triple2Input.style.borderColor = '';
+    if(winInput) winInput.style.borderColor = '';
+
+    // 1. ตรวจสอบ main2 (เน้นพิเศษ)
+    if (m2.length > 0 && m2.length < 2) {
+        hasValidationError = true;
+    }
+    if (m2.length === 2) {
+        if (!m1) {
+            errors.push(`กรุณาระบุ "วิ่ง/รูด" ก่อนพิมพ์ "เน้นพิเศษ"`);
+            main2Input.style.borderColor = 'var(--red)';
+            hasValidationError = true;
+        } else if (!m2.includes(m1)) {
+            errors.push(`เน้นพิเศษ (${m2}) ต้องมีเลขจาก วิ่ง/รูด (${m1})`);
+            main2Input.style.borderColor = 'var(--red)';
+            hasValidationError = true;
+        }
+    }
+
+    // 2. ตรวจสอบเลขคู่
+    let seenPairs = new Set();
+    pairInputs.forEach((input, index) => {
+      if(!input) return;
+      let val = input.value;
+      if (val.length === 1) hasValidationError = true;
+      if (val.length === 2) {
+        if (!m1) {
+          errors.push(`กรุณาระบุ วิ่ง/รูด ก่อนพิมพ์เลขคู่`);
+          input.style.borderColor = 'var(--red)';
+          hasValidationError = true;
+        } else if (!val.includes(m1)) {
+          errors.push(`เลขคู่ชุดที่ ${index + 1} ต้องมีเลขจาก วิ่ง/รูด (${m1})`);
+          input.style.borderColor = 'var(--red)';
+          hasValidationError = true;
+        }
+        
+        // --- กฎใหม่: ห้ามซ้ำกับ เน้นพิเศษ (main2) ---
+        if (m2 && val === m2) {
+          errors.push(`เลขคู่ชุดที่ ${index + 1} ห้ามซ้ำกับเน้นพิเศษ (${m2})`);
+          input.style.borderColor = 'var(--red)';
+          hasValidationError = true;
+        }
+        
+        // --- กฎใหม่: ห้ามซ้ำกันเอง ---
+        if (seenPairs.has(val)) {
+          errors.push(`เลขคู่ซ้ำกัน กรุณาเปลี่ยน`);
+          input.style.borderColor = 'var(--red)';
+          hasValidationError = true;
+        }
+        seenPairs.add(val);
+      }
+    });
+
+    // 4. ตรวจสอบเลขฟัน (ต้องมีเลขจาก เน้นพิเศษ main2)
+    if(winInput) {
+        let wVal = winInput.value;
+        if (wVal.length > 0 && wVal.length < 3) hasValidationError = true;
+        if (wVal.length === 3) {
+          if (!m2 || m2.length < 2) {
+            errors.push(`กรุณาระบุ รูดเน้นและเม็ดเดียว ให้ครบ 2 ตัวก่อนพิมพ์เลขฟัน`);
+            winInput.style.borderColor = 'var(--red)';
+            hasValidationError = true;
+          } else {
+            // เช็คว่าเลขวิน มีตัวเลขจาก "เน้นและเม็ดเดียว" ครบหรือไม่
+            let missing = false;
+            for(let char of m2) {
+                if(!wVal.includes(char)) missing = true;
+            }
+            if (missing) {
+              errors.push(`เลขฟันต้องมีตัวเลขจาก เม็ดเดียว (${m2})`);
+              winInput.style.borderColor = 'var(--red)';
+              hasValidationError = true;
+            }
+          }
+        }
+    }
+
+    errorMsgBox.textContent = errors.length > 0 ? errors[0] : '';
+  }
+
+  const allInputs = [main1Input, main2Input, ...pairInputs, triple1Input, triple2Input, winInput].filter(Boolean);
+  allInputs.forEach(el => el.addEventListener('input', validateInputs));
+
+  form.addEventListener('submit', function(e) {
+     validateInputs();
+     if (hasValidationError) {
+        e.preventDefault();
+        errorMsgBox.style.transform = 'scale(1.05)';
+        setTimeout(() => errorMsgBox.style.transform = 'scale(1)', 150);
+        return;
+     }
+     document.getElementById('loading').classList.add('show');
+     setTimeout(() => document.getElementById('loading').classList.remove('show'), 4000);
+  });
 });
 
 renderList();
 
-// ซ่อน <br> ในหน้าจอ iPad และ มือถือ (<= 1024px)
 window.addEventListener('resize', () => {
   document.querySelectorAll('.desktop-br').forEach(br => {
     br.style.display = window.innerWidth <= 1024 ? 'none' : 'block';
