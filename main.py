@@ -4,7 +4,7 @@ import zipfile
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Optional
 from urllib.parse import quote
 
 from fastapi import Cookie, Depends, FastAPI, Form, HTTPException, Request, Response, status
@@ -29,124 +29,67 @@ TOKEN_EXPIRE_HOURS = 8
 
 USERS = {"admin": "1234"}  # TODO: ใช้ DB + bcrypt จริง ๆ ใน production
 
+# Mapping สำหรับรูปธง (อัปเดตตามชื่อที่มีการรวมรอบ + VIP และ เช้า/บ่าย)
 FLAG_MAPPING = {
     # 🇱🇦 ลาว (Laos)
     "ลาว EXTRA": "static/flags/laos.png",
-    "หวยลาว EXTRA": "static/flags/laos.png",
     "ลาว TV": "static/flags/laos.png",
-    "หวยลาว TV": "static/flags/laos.png",
     "ลาวพิเศษรอบเที่ยง": "static/flags/laos.png",
     "ลาว HD": "static/flags/laos.png",
-    "หวยลาว HD": "static/flags/laos.png",
     "ลาวสตาร์": "static/flags/laos.png",
-    "หวยลาวสตาร์": "static/flags/laos.png",
-    "หวยลาวสามัคคี": "static/flags/laos.png",# ปรับตามชื่อใหม่
-    "ลาวสามัคคี": "static/flags/laos.png",
+    "หวยลาวสามัคคี": "static/flags/laos.png", # ปรับตามชื่อใหม่
     "ลาวพัฒนา": "static/flags/laos.png",
     "ลาวอาเซียน": "static/flags/laos.png",
     "ลาว VIP": "static/flags/laos.png",
-    "หวยลาว VIP": "static/flags/laos.png",
     "ลาวสามัคคี VIP": "static/flags/laos.png",
-    "หวยลาวสามัคคี VIP": "static/flags/laos.png",
     "ลาว STAR VIP": "static/flags/laos.png",
-    "หวยลาว STAR VIP": "static/flags/laos.png",
     "ลาวกาชาด": "static/flags/laos.png",
-    "หวยลาวกาชาด": "static/flags/laos.png",
-
 
     # 🇻🇳 เวียดนาม (Vietnam)
     "ฮานอยอาเซียน": "static/flags/vietnam.png",
     "ฮานอย HD": "static/flags/vietnam.png",
     "ฮานอยสตาร์": "static/flags/vietnam.png",
     "ฮานอย TV": "static/flags/vietnam.png",
-    "หวยฮานอย TV": "static/flags/vietnam.png",
     "ฮานอยกาชาด": "static/flags/vietnam.png",
-    "หวยฮานอยกาชาด": "static/flags/vietnam.png",
     "ฮานอยพิเศษ": "static/flags/vietnam.png",
     "ฮานอยสามัคคี": "static/flags/vietnam.png",
     "ฮานอย": "static/flags/vietnam.png", # ปรับตามชื่อใหม่
-    "ฮานอยปกติ": "static/flags/vietnam.png",
-    "ฮานอยดึก": "static/flags/vietnam.png",
-    "หวยฮานอย": "static/flags/vietnam.png",
     "ฮานอย VIP": "static/flags/vietnam.png",
-    "ฮานอย + VIP": "static/flags/vietnam.png",
-    "หวยฮานอย VIP": "static/flags/vietnam.png",
     "ฮานอยพัฒนา": "static/flags/vietnam.png",
     "ฮานอย EXTRA": "static/flags/vietnam.png",
-    "หวยฮานอย EXTRA": "static/flags/vietnam.png",
 
     # 🇯🇵 ญี่ปุ่น (Japan)
-    "นิเคอิ(เช้า)": "static/flags/japan.png",
-    "นิเคอิเช้า": "static/flags/japan.png",
-    "นิเคอิ(เช้า) VIP": "static/flags/japan.png",
-    "นิเคอิเช้า VIP": "static/flags/japan.png",
-    "นิเคอิ(บ่าย)": "static/flags/japan.png",
-    "นิเคอิบ่าย": "static/flags/japan.png",
-    "นิเคอิ(บ่าย) VIP": "static/flags/japan.png",
-    "นิเคอิบ่าย VIP": "static/flags/japan.png",
     "นิเคอิ(เช้า) + VIP": "static/flags/japan.png",
     "นิเคอิ(บ่าย) + VIP": "static/flags/japan.png",
 
     # 🇨🇳 จีน (China)
-    "จีน(เช้า)": "static/flags/china.png",
-    "จีนเช้า": "static/flags/china.png",
-    "จีน(เช้า) VIP": "static/flags/china.png",
-    "จีนเช้า VIP": "static/flags/china.png",
-    "จีน(บ่าย)": "static/flags/china.png",
-    "จีนบ่าย": "static/flags/china.png",
-    "จีน(บ่าย) VIP": "static/flags/china.png",
-    "จีนบ่าย VIP": "static/flags/china.png",
     "จีน(เช้า) + VIP": "static/flags/china.png",
     "จีน(บ่าย) + VIP": "static/flags/china.png",
 
     # 🇭🇰 ฮ่องกง (Hong Kong)
-    "ฮั่งเส็ง(เช้า)": "static/flags/hongkong.png",
-    "ฮั่งเส็งเช้า": "static/flags/hongkong.png",
-    "ฮั่งเส็ง(เช้า) VIP": "static/flags/hongkong.png",
-    "ฮั่งเส็งเช้า VIP": "static/flags/hongkong.png",
-    "ฮั่งเส็ง(บ่าย)": "static/flags/hongkong.png",
-    "ฮั่งเส็งบ่าย": "static/flags/hongkong.png",
-    "ฮั่งเส็ง(บ่าย) VIP": "static/flags/hongkong.png",
-    "ฮั่งเส็งบ่าย VIP": "static/flags/hongkong.png",
     "ฮั่งเส็ง(เช้า) + VIP": "static/flags/hongkong.png",
     "ฮั่งเส็ง(บ่าย) + VIP": "static/flags/hongkong.png",
 
     # 🇹🇼 ไต้หวัน (Taiwan)
-    "ไต้หวัน": "static/flags/taiwan.png",
-    "ไต้หวัน VIP": "static/flags/taiwan.png",
     "ไต้หวัน + VIP": "static/flags/taiwan.png",
 
     # 🇰🇷 เกาหลีใต้ (South Korea)
-    "เกาหลี": "static/flags/korea.png",
-    "เกาหลี VIP": "static/flags/korea.png",
     "เกาหลี + VIP": "static/flags/korea.png",
 
     # 🇺🇸 สหรัฐอเมริกา (USA)
-    "ดาวโจนส์": "static/flags/usa.png",
-    "ดาวโจนส์ VIP": "static/flags/usa.png",
     "ดาวโจนส์ + VIP": "static/flags/usa.png",
-    "หวยดาวโจนส์ VIP": "static/flags/usa.png",
     "ดาวโจนส์ STAR": "static/flags/usa.png",
-    "หวยดาวโจนส์ STAR": "static/flags/usa.png",
 
     # 🇬🇧 อังกฤษ (United Kingdom)
-    "อังกฤษ": "static/flags/uk.png",
-    "อังกฤษ VIP": "static/flags/uk.png",
     "อังกฤษ + VIP": "static/flags/uk.png",
 
     # 🇩🇪 เยอรมนี (Germany)
-    "เยอรมัน": "static/flags/germany.png",
-    "เยอรมัน VIP": "static/flags/germany.png",
     "เยอรมัน + VIP": "static/flags/germany.png",
 
     # 🇷🇺 รัสเซีย (Russia)
-    "รัสเซีย": "static/flags/russia.png",
-    "รัสเซีย VIP": "static/flags/russia.png",
     "รัสเซีย + VIP": "static/flags/russia.png",
 
     # 🇸🇬 สิงคโปร์ (Singapore)
-    "สิงคโปร์": "static/flags/singapore.png",
-    "สิงคโปร์ VIP": "static/flags/singapore.png",
     "สิงคโปร์ + VIP": "static/flags/singapore.png",
 
     # 🇹🇭 ไทย (Thailand)
@@ -157,14 +100,13 @@ FLAG_MAPPING = {
     "ไทย": "static/flags/thailand.png",
     "ออมสิน": "static/flags/thailand.png",
     "ธกส": "static/flags/thailand.png",
-    "รัฐบาลไทย": "static/flags/thailand.png",
+    "รัฐบาล": "static/flags/thailand.png",
 
     # 🇮🇳 อินเดีย (India)
     "อินเดีย": "static/flags/india.png",
 
     # 🇲🇾 มาเลเซีย (Malaysia)
     "มาเลย์": "static/flags/malaysia.png",
-    "หวยมาเลย์": "static/flags/malaysia.png",
 
     # 🇪🇬 อียิปต์ (Egypt)
     "อียิปต์": "static/flags/egypt.png",
@@ -225,11 +167,15 @@ def _bold_text(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str,
             draw.text((x + dx, y + dy), text, font=font, fill=fill)
 
 
-def create_image_bytes(lottery_type: str) -> bytes:
-    """
-    สร้างรูปภาพในหน่วยความจำและคืนค่าเป็น bytes (PNG/JPEG)
-    ไม่มีการเขียนไฟล์ลง disk เลย
-    """
+def create_image_bytes(
+    lottery_type: str, 
+    main1: Optional[str] = None, 
+    main2: Optional[str] = None,
+    pair1: Optional[str] = None,
+    pair2: Optional[str] = None,
+    pair3: Optional[str] = None,
+    win_num: Optional[str] = None
+) -> bytes:
     # deepcopy เพื่อไม่ให้แก้ไข cached image โดยตรง
     image = deepcopy(_load_bg()).convert("RGB")
     draw  = ImageDraw.Draw(image)
@@ -269,28 +215,70 @@ def create_image_bytes(lottery_type: str) -> bytes:
             pass # ถ้าหาไฟล์รูปธงไม่เจอ ให้ข้ามการวาดธงไปเลย
 
     # ─── สุ่มเลขตามเงื่อนไขใหม่ ──────────────────────────────────────────────
-    
-    # 1. สร้างเลขหลักมา 2 เลข ก่อน
-    num1, num2 = random.sample(range(10), 2)
+    # 1. จัดการตัวแปรที่รับมาจากผู้ใช้
+    m1 = main1 if main1 and len(main1) == 1 and main1.isdigit() else None
+    m2 = main2 if main2 and len(main2) == 2 and main2.isdigit() else None
 
-    # 2. นำเลขหลัก 1 ตัว วางซ้ำกัน 3 ครั้ง (รูดเน้น)
+    # --- กำหนดค่า num1 ---
+    if m1:
+        num1 = m1
+    else:
+        num1 = str(random.choice(range(10)))
+
+    # --- กำหนดค่า num2 (รับค่ามาจาก main 2 โดยตรง) ---
+    if m2:
+        num2 = m2
+    else:
+        # ถ้าไม่ได้กรอกมา ให้สุ่มเลข 2 ตัวที่มี num1 เป็นส่วนประกอบ
+        other_digit = random.choice([str(i) for i in range(10) if str(i) != num1])
+        num2 = f"{num1}{other_digit}"
+        if random.random() > 0.5: num2 = num2[::-1]
+
+    # เงื่อนไขที่ 1: num1 = เบิ้ลเป็น 3 ตัว (เช่น 5 -> 555)
     triple_num = f"{num1}{num1}{num1}"
-
-    # 3. วางเลขหลักทั้งสองด้วยกัน (เม็ดเดียว)
-    main_pair = f"{num1}{num2}"
-
-    # 4. นำเลขหลักตัวเดิมมาสร้างเป็นเลข คู่ 3 คู่ โดยไม่ซ้ำกับเลขหลัก 2 ตัว
-    # หาตัวเลขที่ไม่ใช่ num1 และ num2 มา 3 ตัว
-    available_digits = [d for d in range(10) if d not in (num1, num2)]
-    selected_for_pairs = random.sample(available_digits, 3)
     
-    # สร้างเลขคู่ 3 ชุด แล้วนำมาเชื่อมกันด้วย " - "
-    pairs_list = [f"{num1}{d}" for d in sorted(selected_for_pairs)]
-    pairs_text = " - ".join(pairs_list)
+    # เงื่อนไขที่ 2: num2 = ก็แค่รับค่ามาจาก main 2 โดยตรงเลย
+    main_pair = num2
 
-    # 5. นำเลขหลัก 2 ตัวมาวางแต่เพิ่มตัวเลขด้านหน้า 1 ตัวให้กลายเป็นเลข 3 หลัก
-    front_digit = random.choice(range(10))
-    three_digit = f"{front_digit}{num1}{num2}"
+    # --- 2. จัดการ เลขคู่ 3 ชุด ---
+    def get_or_random_pair(user_input, default_format):
+        if user_input and len(user_input) == 2 and user_input.isdigit():
+            return user_input
+        return default_format
+
+    # เอาเลข num1 เป็นหลัก แล้วสุ่มเพิ่มอีก 1 ตัว (0-9) โดยที่:
+    # 1. ห้ามเป็นตัวเดียวกับ num1 (กันเลขเบิ้ล)
+    # 2. ห้ามทำให้ผลลัพธ์ไปซ้ำกับ num2 (main_pair)
+    avail_pair_digits = [str(i) for i in range(10) if str(i) != num1 and f"{num1}{i}" != num2 and f"{i}{num1}" != num2]
+    
+    # สุ่มเลข 3 ตัวแบบไม่ซ้ำกันเลย
+    if len(avail_pair_digits) >= 3:
+        r1, r2, r3 = random.sample(avail_pair_digits, 3)
+    else:
+        # สำรองกรณีที่มีเลขให้สุ่มไม่พอ (เช่น เผลอตัดออกมากไป) ก็จะสุ่มจาก 0-9 ธรรมดาแทน
+        r1, r2, r3 = random.sample([str(i) for i in range(10)], 3)
+    
+    pairs_list = [
+        get_or_random_pair(pair1, f"{num1}{r1}"),
+        get_or_random_pair(pair2, f"{num1}{r2}"),
+        get_or_random_pair(pair3, f"{num1}{r3}")
+    ]
+    # รวม List ให้เป็น String คั่นด้วยช่องว่าง เพื่อให้วาดรูปลงข้อความได้
+    pairs_text = "   ".join(pairs_list)
+
+    # --- 3. จัดการเลขฟัน 3 ตัวท้าย (win_num) ---
+    def get_or_random_triple(user_input, default_format):
+        if user_input and len(user_input) == 3 and user_input.isdigit():
+            return user_input
+        return default_format
+
+    # เงื่อนไขที่ 4: เอาเลข main2 มาและสุ่มเลขเพิ่มอีก 1 ตัว... ห้ามซ้ำกับ main2
+    # กรองเอาเลข 0-9 เฉพาะตัวที่ไม่ได้อยู่ใน num2 (main2) มาสุ่มใส่ด้านหน้า
+    avail_front_digits = [str(i) for i in range(10) if str(i) not in num2]
+    front_digit = random.choice(avail_front_digits)
+    
+    # สังเกตว่าดึงตัวแปร win_num ที่ส่งมาจากหน้าเว็บตรงๆ เพื่อมาใช้เช็ค
+    triple_val = get_or_random_triple(win_num, f"{front_digit}{num2}")
 
     # ─── วาดผลลัพธ์ลงบนภาพ ────────────────────────────────────────────────
     # ปรับขนาดฟอนต์ให้เข้ากับแต่ละกล่อง
@@ -311,7 +299,7 @@ def create_image_bytes(lottery_type: str) -> bytes:
     _bold_text(draw, (400, 580), pairs_text, f_small, fill="#ffffff")  
     
     # ฟัน 3 ตัวท้าย (สีแดง)
-    _bold_text(draw, (440, 720), three_digit, f_medium, fill="#ff0000") 
+    _bold_text(draw, (440, 720), triple_val, f_medium, fill="#ff0000") 
 
     # ─── คืนค่าเป็น bytes (ไม่เซฟไฟล์) ────────────────────────────────────
     buf = io.BytesIO()
@@ -321,18 +309,25 @@ def create_image_bytes(lottery_type: str) -> bytes:
 
 # ─── Routes ──────────────────────────────────────────────────────────────────
 
+# 1. ตัวที่ทำให้เกิด Error 405 คือตัวนี้หายไป (สำหรับโหลดหน้าเว็บเข้าสู่ระบบ)
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-
+# 2. สำหรับกดปุ่มเข้าสู่ระบบ (เช็ครหัสผ่าน)
 @app.post("/login")
 async def login(
+    request: Request,
     username: str = Form(...),
     password: str = Form(...),
 ):
     if USERS.get(username) != password:
-        raise HTTPException(status_code=400, detail="ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+        return templates.TemplateResponse(
+            "login.html", 
+            {"request": request, "error": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"},
+            status_code=400
+        )
+    
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(
         key="access_token",
@@ -343,7 +338,7 @@ async def login(
     )
     return response
 
-
+# 3. สำหรับออกจากระบบ
 @app.get("/logout")
 async def logout():
     response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
@@ -360,24 +355,55 @@ async def lottery_page(request: Request, user: CurrentUser):
 async def lottery_generate(
     user: CurrentUser,
     lottery_type: list[str] = Form(...),
+    main1: Optional[str] = Form(None), 
+    main2: Optional[str] = Form(None),
+    pair1: Optional[str] = Form(None), 
+    pair2: Optional[str] = Form(None), 
+    pair3: Optional[str] = Form(None), 
+    win_num: Optional[str] = Form(None), 
 ):
+    # ... โค้ดเดิมของคุณที่ใช้รับค่าและสร้างรูปภาพ ...
     if not lottery_type:
         raise HTTPException(status_code=400, detail="กรุณาเลือกประเภทหวยอย่างน้อย 1 รายการ")
 
-    # --- 1. เตรียมข้อมูลและเรียงลำดับตามเวลาก่อน ---
+    # --- เริ่มต้นส่วนตรวจสอบเงื่อนไขตัวเลข (Backend Validation) ---
+    if main2 and len(main2) == 2:
+        if not main1:
+            raise HTTPException(status_code=400, detail="กรุณาระบุ รูดเน้น ก่อน")
+        if main1 not in main2:
+            raise HTTPException(status_code=400, detail=f"เน้นพิเศษ ({main2}) ต้องมีเลขจาก รูดเน้น ({main1})")
+
+    seen_pairs = set()
+    for i, p in enumerate([pair1, pair2, pair3], 1):
+        if p and len(p) == 2:
+            if not main1 or main1 not in p:
+                raise HTTPException(status_code=400, detail=f"เลขคู่ชุดที่ {i} ต้องมีเลขจาก รูดเน้น")
+            # --- กฎใหม่: ห้ามซ้ำกับเน้นพิเศษ ---
+            if main2 and p == main2:
+                raise HTTPException(status_code=400, detail=f"เลขคู่ชุดที่ {i} ห้ามซ้ำกับเม็ดเดียว ({main2})")
+            # --- กฎใหม่: ห้ามซ้ำกันเอง ---
+            if p in seen_pairs:
+                raise HTTPException(status_code=400, detail=f"เลขคู่ซ้ำกัน กรุณาเปลี่ยนเลขใหม่")
+            seen_pairs.add(p)
+            
+    if win_num and len(win_num) == 3:
+        if not main2 or len(main2) < 2:
+            raise HTTPException(status_code=400, detail="กรุณาระบุ เม็ดเดียว ก่อนพิมพ์เลขฟัน")
+        for d in main2:
+            if d not in win_num:
+                raise HTTPException(status_code=400, detail=f"เลขฟันต้องมีตัวเลขจาก เม็ดเดียว ({main2})")
+    # --- สิ้นสุดส่วนตรวจสอบเงื่อนไขตัวเลข ---
+
     parsed_items = []
     for lt_data in lottery_type:
-        # แยกเวลาและชื่อหวย (เช่น "08:25" กับ "ลาว EXTRA")
         time_str, name_str = lt_data.split("|", 1) if "|" in lt_data else ("", lt_data)
         parsed_items.append({
             "time": time_str, 
             "name": name_str
         })
     
-    # เรียงลำดับจากเช้าไปดึก (ถ้าไม่มีเวลา กำหนดเป็น "99:99" เพื่อดันไปอยู่ท้ายสุด)
     parsed_items.sort(key=lambda x: x["time"] if x["time"] else "99:99")
 
-    # ─── ไฟล์เดียว: ส่งตรง ─────────────────────────────────────────────────
     if len(parsed_items) == 1:
         item = parsed_items[0]
         time_str = item["time"]
@@ -386,31 +412,24 @@ async def lottery_generate(
         filename = f"{time_str.replace(':', '.')}_{name_str}.jpg" if time_str else f"{name_str}.jpg"
         encoded_filename = quote(filename)
         
-        # นำ main1, main2 ออกจากฟังก์ชัน
-        img_bytes = create_image_bytes(name_str)
+        img_bytes = create_image_bytes(name_str, main1, main2, pair1, pair2, pair3, win_num)
         return StreamingResponse(
             io.BytesIO(img_bytes),
             media_type="image/jpeg",
             headers={"Content-Disposition": f"attachment; filename*=utf-8''{encoded_filename}"},
         )
 
-    # ─── หลายไฟล์: ZIP ใน RAM ──────────────────────────────────────────────
     zip_buf = io.BytesIO()
     with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
-        # ใช้ enumerate สร้างเลขลำดับ 1, 2, 3...
         for index, item in enumerate(parsed_items, start=1):
             time_str = item["time"]
             name_str = item["name"]
             
-            # --- 2. สร้างเลขลำดับ (01, 02, 03...) ไว้หน้าสุด ---
             prefix = f"{index:02d}_" 
             time_part = f"{time_str.replace(':', '.')}_" if time_str else ""
-            
-            # ประกอบชื่อไฟล์ (เช่น "01_08.25_ลาว EXTRA.jpg" หรือ "15_หวยรัฐบาล.jpg")
             filename = f"{prefix}{time_part}{name_str}.jpg"
             
-            # นำ main1, main2 ออกจากฟังก์ชัน
-            zf.writestr(filename, create_image_bytes(name_str))
+            zf.writestr(filename, create_image_bytes(name_str, main1, main2, pair1, pair2, pair3, win_num))
     zip_buf.seek(0)
 
     return StreamingResponse(
@@ -418,7 +437,6 @@ async def lottery_generate(
         media_type="application/zip",
         headers={"Content-Disposition": 'attachment; filename="lottery_results.zip"'},
     )
-
 
 # ─── Entrypoint ──────────────────────────────────────────────────────────────
 
