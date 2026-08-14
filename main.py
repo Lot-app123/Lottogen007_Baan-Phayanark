@@ -377,13 +377,13 @@ async def lottery_generate(
     for i, p in enumerate([pair1, pair2, pair3], 1):
         if p and len(p) == 2:
             if not main1 or main1 not in p:
-                raise HTTPException(status_code=400, detail=f"เลขคู่ชุดที่ {i} ต้องมีเลขจาก รูดเน้น")
+                raise HTTPException(status_code=400, detail=f"เลขเจาะชุดที่ {i} ต้องมีเลขจาก รูดเน้น")
             # --- กฎใหม่: ห้ามซ้ำกับเน้นพิเศษ ---
             if main2 and p == main2:
-                raise HTTPException(status_code=400, detail=f"เลขคู่ชุดที่ {i} ห้ามซ้ำกับเม็ดเดียว ({main2})")
+                raise HTTPException(status_code=400, detail=f"เลขเจาะชุดที่ {i} ห้ามซ้ำกับเม็ดเดียว ({main2})")
             # --- กฎใหม่: ห้ามซ้ำกันเอง ---
             if p in seen_pairs:
-                raise HTTPException(status_code=400, detail=f"เลขคู่ซ้ำกัน กรุณาเปลี่ยนเลขใหม่")
+                raise HTTPException(status_code=400, detail=f"เลขเจาะซ้ำกัน กรุณาเปลี่ยนเลขใหม่")
             seen_pairs.add(p)
             
     if win_num and len(win_num) == 3:
